@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 # Ignore local certs and generated zip
 web/certs/
-=======
-﻿web/certs/
->>>>>>> c629873c3b0eaf45e315e351b071c2bdeaa4914d
 site.zip
 web-deploy/
