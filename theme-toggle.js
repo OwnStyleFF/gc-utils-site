@@ -95,13 +95,13 @@
       var wm = document.createElement('div');
       wm.id = 'site-watermark';
       wm.textContent = text;
-      // Basic inline style; uses --card-text (falls back to --text) for color so it adapts to theme
-      var color = getComputedStyle(document.body).getPropertyValue('--card-text') || getComputedStyle(document.body).getPropertyValue('--text') || '#000';
+  // Fixed watermark color (independent of theme) — semi-opaque neutral gray
+  var color = '#666';
       wm.style.position = 'fixed';
       wm.style.right = '1rem';
       wm.style.bottom = '1rem';
       wm.style.zIndex = '9999';
-      wm.style.opacity = '0.12';
+  wm.style.opacity = '0.14';
       wm.style.pointerEvents = 'none';
       wm.style.fontSize = '14px';
       wm.style.fontWeight = '700';
@@ -117,15 +117,7 @@
     } catch (e) { console.warn('[theme-toggle] injectWatermark failed', e); }
   }
 
-  // Update watermark color when theme changes
-  function updateWatermarkColor() {
-    try {
-      var wm = document.getElementById('site-watermark');
-      if (!wm) return;
-      var color = getComputedStyle(document.body).getPropertyValue('--card-text') || getComputedStyle(document.body).getPropertyValue('--text') || '#000';
-      wm.style.color = color.trim();
-    } catch (e) { /* ignore */ }
-  }
+  // Note: watermark color is fixed and does not change with the theme.
 
   function init() {
     console.log('[theme-toggle] init called. locating controls...');
@@ -142,8 +134,8 @@
       setTheme(auto);
     }
 
-    // Ensure watermark exists on the page
-    try { injectWatermark(); updateWatermarkColor(); } catch(e) { /* ignore */ }
+  // Ensure watermark exists on the page
+  try { injectWatermark(); } catch(e) { /* ignore */ }
 
     // Helper to attach listeners to the toggle and icons
     function attachListenersTo(toggle, icons){
@@ -151,11 +143,10 @@
       try {
         if (toggle.__themeListenersAttached) return;
         toggle.__themeListenersAttached = true;
-        toggle.addEventListener('change', function(){
+          toggle.addEventListener('change', function(){
           const mode = toggle.checked ? 'dark' : 'light';
           console.log('[theme-toggle] toggle changed, applying:', mode);
           setTheme(mode);
-          try { updateWatermarkColor(); } catch(e) {}
         });
         if (icons && icons.length) {
           icons.forEach(ic => ic.addEventListener('click', function(e){
@@ -164,7 +155,6 @@
             const mode = toggle.checked ? 'dark' : 'light';
             console.log('[theme-toggle] icon clicked, toggling to:', mode);
             setTheme(mode);
-            try { updateWatermarkColor(); } catch(e) {}
           }));
         }
         console.log('[theme-toggle] listeners attached to toggle');
