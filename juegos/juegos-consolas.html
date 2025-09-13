@@ -11,10 +11,114 @@
         <h1>Juegos de consolas</h1>
     </header>
     <main>
-        <p>Proximamente.</p>
+        <div style="display:flex;justify-content:center;margin-bottom:2rem;gap:1rem;flex-wrap:wrap;">
+            <button class="filtro-btn" data-plataforma="Todo" style="color:#222;">Todo</button>
+            <button class="filtro-btn" data-plataforma="Xbox 360" style="color:#222;">Xbox 360</button>
+            <button class="filtro-btn" data-plataforma="PS2" style="color:#222;">PS2</button>
+            <button class="filtro-btn" data-plataforma="PS3" style="color:#222;">PS3</button>
+        </div>
+        <div id="juegos-lista" class="main-cards" style="justify-content:center;flex-wrap:wrap;gap:2rem;"></div>
         <div style="display:flex;justify-content:center;margin-top:2.5rem;">
             <a href="../index.html" style="background:#0078d7;color:#fff;padding:0.7rem 1.4rem;border-radius:8px;text-decoration:none;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.10);transition:background 0.2s;">⏪ Volver a Juegos</a>
         </div>
     </main>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let juegos = [];
+        let juegosLista = document.getElementById('juegos-lista');
+        let filtroActual = 'Todo';
+        fetch('juegos-consolas.json')
+            .then(r => r.json())
+            .then(data => {
+                juegos = data;
+                renderJuegos();
+            });
+
+        function renderJuegos() {
+            juegosLista.innerHTML = '';
+            let filtrados = filtroActual === 'Todo' ? juegos : juegos.filter(j => j.plataforma === filtroActual);
+            if (filtrados.length === 0) {
+                let p = document.createElement('p');
+                p.textContent = 'No hay juegos para esta plataforma.';
+                juegosLista.appendChild(p);
+                return;
+            }
+            filtrados.forEach(juego => {
+                let card = document.createElement('div');
+                card.className = 'main-card';
+                card.style.width = '260px';
+                card.style.display = 'flex';
+                card.style.flexDirection = 'column';
+                card.style.alignItems = 'center';
+                card.style.background = 'var(--card-bg, #fff)';
+                card.style.borderRadius = '10px';
+                card.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+                card.style.overflow = 'hidden';
+                card.style.marginBottom = '1rem';
+
+                let img = document.createElement('img');
+                img.src = juego.imagen;
+                img.alt = juego.titulo;
+                img.style.width = '100%';
+                img.style.height = '160px';
+                img.style.objectFit = 'cover';
+                card.appendChild(img);
+
+                let title = document.createElement('div');
+                title.className = 'main-card-title';
+                title.textContent = (juego.peso ? juego.peso + ' ' : '') + juego.titulo;
+                title.style.fontWeight = 'bold';
+                title.style.margin = '1rem 0 0.5rem 0';
+                card.appendChild(title);
+
+                let desc = document.createElement('div');
+                desc.textContent = juego.descripcion;
+                desc.style.fontSize = '0.95rem';
+                desc.style.marginBottom = '0.5rem';
+                card.appendChild(desc);
+
+                let plat = document.createElement('div');
+                plat.textContent = 'Plataforma: ' + juego.plataforma;
+                plat.style.fontSize = '0.9rem';
+                plat.style.color = '#666';
+                plat.style.marginBottom = '0.7rem';
+                card.appendChild(plat);
+
+                let link = document.createElement('a');
+                link.href = juego.enlace;
+                link.textContent = 'Descargar';
+                link.style.background = '#0078d7';
+                link.style.color = '#fff';
+                link.style.padding = '0.5rem 1.2rem';
+                link.style.borderRadius = '6px';
+                link.style.textDecoration = 'none';
+                link.style.fontWeight = 'bold';
+                link.style.marginBottom = '1rem';
+                link.setAttribute('download', '');
+                link.target = '_blank';
+                card.appendChild(link);
+
+                juegosLista.appendChild(card);
+            });
+        }
+
+        document.querySelectorAll('.filtro-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                filtroActual = this.getAttribute('data-plataforma');
+                document.querySelectorAll('.filtro-btn').forEach(b => {
+                    b.style.background = '';
+                    b.style.color = '#222';
+                });
+                this.style.background = '#0078d7';
+                this.style.color = '#fff';
+                renderJuegos();
+            });
+        });
+        // Marcar "Todo" como activo por defecto
+        let btnTodo = document.querySelector('.filtro-btn[data-plataforma="Todo"]');
+        btnTodo.style.background = '#0078d7';
+        btnTodo.style.color = '#fff';
+    });
+    </script>
 </body>
 </html>
