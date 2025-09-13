@@ -1,0 +1,4 @@
+# Ignore local certs and generated zip
+web/certs/
+site.zip
+web-deploy/

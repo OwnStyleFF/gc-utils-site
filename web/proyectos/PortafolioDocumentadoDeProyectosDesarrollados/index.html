@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portafolio Documentado de Proyectos</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <header>
+        <h1>Proyectos GC</h1>
+    </header>
+    <main>
+        <section style="max-width:700px;margin:auto;padding:1.5rem 1rem;">
+            <h2>Portafolio Documentado de Proyectos</h2>
+            <div style="display:flex;justify-content:center;gap:2rem;margin-top:2rem;flex-wrap:wrap;">
+                <div class="card" style="width:260px;max-width:260px;min-height:120px;padding:1rem;display:flex;flex-direction:column;align-items:center;cursor:pointer;" onclick="window.location.href='Proyecto1/index.html'">
+                    <div style="display:flex;justify-content:center;margin-bottom:1.2rem;">
+                        <img src="../../image/ProyectosPaga.png" alt="Proyecto A" style="max-width:180px;max-height:120px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.12);">
+                    </div>
+                    <div class="card-title">Proyectos de Paga</div>
+                    <div style="padding:0 1rem 1rem 1rem;text-align:center;color:#555;">Soluciónes para automatización de tareas DOCUMENTACION.</div>
+                </div>
+                <div class="card" style="width:260px;max-width:260px;min-height:120px;padding:1rem;display:flex;flex-direction:column;align-items:center;cursor:pointer;" onclick="window.location.href='Proyecto2/index.html'">
+                    <div style="display:flex;justify-content:center;margin-bottom:1.2rem;">
+                        <img src="../../image/ProyectosGratuitos.png" alt="Proyecto B" style="max-width:180px;max-height:120px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.12);">
+                    </div>
+                    <div class="card-title">Proyectos Gratuitos</div>
+                    <div style="padding:0 1rem 1rem 1rem;text-align:center;color:#555;">Software gratuito para todos, antes de publicar cualquiera herramienta creada por mi, sera patentada para evitar lucro DOCUMENTACION.</div>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:center;margin-top:2rem;">
+                <a href="../index.html" style="background:#0078d7;color:#fff;padding:0.7rem 1.4rem;border-radius:8px;text-decoration:none;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.10);transition:background 0.2s;">⏪ Volver a Proyectos</a>
+            </div>
+            <style>
+                .img-cajon { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 0.7rem; }
+                .img-cajon img { max-width: 120px; max-height: 80px; border-radius: 8px; object-fit: cover; box-shadow: 0 1px 6px rgba(0,0,0,0.10); }
+                .publicaciones { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; margin-top: 2rem; }
+                .cajon-publicacion { background: var(--card-bg, #fff); border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); width: 320px; max-width: 90vw; min-height: 120px; padding: 1rem; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; transition: box-shadow 0.2s, transform 0.2s; margin-bottom: 1rem; }
+                .cajon-publicacion h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text, #222); }
+                .cajon-publicacion p { font-size: 0.98rem; color: #555; margin: 0; white-space: normal; overflow-wrap: break-word; max-width: 100%; }
+                @media (max-width: 500px) { .cajon-publicacion { width: 98vw; min-height: 100px; } }
+            </style>
+        </section>
+    </main>
+</body>
+</html>
