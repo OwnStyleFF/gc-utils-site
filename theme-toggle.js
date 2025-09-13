@@ -91,7 +91,7 @@
     try {
       if (window.__watermarkInjected) return;
   // Explicit watermark text
-  var text = 'Andres G. Carmona';
+  var text = 'AndresGC';
       var wm = document.createElement('div');
       wm.id = 'site-watermark';
       wm.textContent = text;
