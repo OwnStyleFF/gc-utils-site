@@ -1,0 +1,22 @@
+[
+  {
+    "titulo": "Configuración de redes",
+    "imagen": "../image/Configuracion-de-redes.png"
+    ,"link": "configuracion-de-redes/"
+  },
+  {
+    "titulo": "Soporte técnico remoto",
+    "imagen": "../image/Soporte-tecnico-remoto.png"
+    ,"link": "soporte-tecnico-remoto/"
+  },
+  {
+    "titulo": "Instalación de software",
+    "imagen": "../image/Instalacion-de-software.png"
+    ,"link": "instalacion-de-software/"
+  },
+  {
+    "titulo": "Redes sociales",
+    "imagen": "../image/redes-sociales.png"
+    ,"link": "redes-sociales/"
+  }
+]
