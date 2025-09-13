@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyecto 2 - Visual</title>
+  <link rel="stylesheet" href="../../../style.css">
+  <style>
+      .img-cajon {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 0.7rem;
+      }
+      .img-cajon img {
+        max-width: 120px;
+        max-height: 80px;
+        border-radius: 8px;
+        object-fit: cover;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.10);
+      }
+      .publicaciones {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        justify-content: center;
+        margin-top: 2rem;
+        align-items: stretch; /* make children equal height within a row */
+      }
+      .cajon-publicacion {
+        background: var(--card-bg, #fff);
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        width: 320px;
+        max-width: 90vw;
+        min-height: 160px; /* increased to align visually */
+        padding: 1rem;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* center content horizontally */
+        justify-content: space-between; /* space elements vertically so heights match */
+        text-align: center; /* center text inside card */
+        transition: box-shadow 0.2s, transform 0.2s;
+        margin-bottom: 1rem;
+      }
+      .cajon-publicacion h2 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        color: var(--text, #222);
+      }
+      .cajon-publicacion p {
+        font-size: 0.98rem;
+        color: #555;
+        margin: 0;
+        white-space: normal;
+        overflow-wrap: break-word;
+        max-width: 100%;
+      }
+      @media (max-width: 500px) {
+        .cajon-publicacion {
+          width: 98vw;
+          min-height: 100px;
+        }
+      }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Proyectos gratuitos</h1>
+  </header>
+  <main>
+    <div class="publicaciones">
+            <a class="card-link" href="arduino.html" style="text-decoration:none;color:inherit;">
+              <div class="cajon-publicacion" style="cursor:default;">
+                  <div class="img-cajon">
+                      <img src="../../../image/ProyectosArduinoFREE.png" alt="Proyectos Arduino Gratuitos">
+                  </div>
+                  <h2>Proyectos Arduino Gratuitos</h2>
+                  <p>Aqui se documentara sobre la creacion y uso de proyectos Arduino gratuitos.</p>
+              </div>
+            </a>
+
+            <a class="card-link" href="android.html" style="text-decoration:none;color:inherit;">
+              <div class="cajon-publicacion" style="cursor:default;">
+                  <div class="img-cajon">
+                      <img src="../../../image/ProyectosAndroidFREE.png" alt="Proyectos Android Gratuitos">
+                  </div>
+                  <h2>Proyectos Android Gratuitos</h2>
+                  <p>Aqui se documentara sobre la creacion y uso de proyectos Android gratuitos.</p>
+              </div>
+            </a>
+
+            <a class="card-link" href="windowsapps.html" style="text-decoration:none;color:inherit;">
+              <div class="cajon-publicacion" style="cursor:default;">
+                  <div class="img-cajon">
+                      <img src="../../../image/ProyectosWindowsFREE.png" alt="Proyectos Windows Gratuitos">
+                  </div>
+                  <h2>Proyectos Windows Gratuitos</h2>
+                  <p>Aqui se documentara sobre la creacion y uso de proyectos Windows gratuitos.</p>
+              </div>
+            </a>
+
+            <a class="card-link" href="projects-api.html" style="text-decoration:none;color:inherit;">
+              <div class="cajon-publicacion" style="cursor:default;">
+                  <div class="img-cajon">
+                      <img src="../../../image/ProyectosAPIFREE.png" alt="Proyectos API Gratuitos">
+                  </div>
+                  <h2>Proyectos API Gratuitos</h2>
+                  <p>Aqui se documentara sobre la creacion y uso de proyectos API gratuitos.</p>
+              </div>
+            </a>
+        </div>
+    <div style="display:flex;justify-content:center;margin-top:2.5rem;">
+      <a href="../index.html" style="background:#0078d7;color:#fff;padding:0.7rem 1.4rem;border-radius:8px;text-decoration:none;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.10);transition:background 0.2s;">⏪ Volver</a>
+    </div>
+  </main>
+</body>
+</html>

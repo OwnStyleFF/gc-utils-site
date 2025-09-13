@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto 1 - Portafolio</title>
+    <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+    <header>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+            <h1 style="margin:0;">Proyectos de paga</h1>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+                <span class="theme-icon" aria-hidden="true">🌞</span>
+                <input type="checkbox" id="theme-toggle" aria-label="Cambiar tema">
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="publicaciones">
+            <a class="card-link" href="arduino.html" style="text-decoration:none;color:inherit;">
+              <div class="cajon-publicacion" style="cursor:default;">
+                  <div class="img-cajon">
+                      <img src="../../../image/ProyectosArduino.png" alt="Proyectos Arduino">
+                  </div>
+                  <h2>Proyectos Arduino</h2>
+                  <p>Aqui subire proyectos desarrollados con Arduino, con guias ejemplos e incluso ayuda con contacto directo conmigo para su correcta instalacion.</p>
+              </div>
+            </a>
+
+            <a class="card-link" href="android.html" style="text-decoration:none;color:inherit;">
+              <div class="cajon-publicacion" style="cursor:default;">
+                  <div class="img-cajon">
+                      <img src="../../../image/ProyectosAndroid.png" alt="Proyectos Android">
+                  </div>
+                  <h2>Proyectos Android</h2>
+                  <p>Aqui subire proyectos de aplicaciones Android utiles, con el codigo fuente disponible para descarga, por seguridad y antiplagio hare las conexion entre opciones por API.</p>
+              </div>
+            </a>
+
+            <a class="card-link" href="windowsapps.html" style="text-decoration:none;color:inherit;">
+              <div class="cajon-publicacion" style="cursor:default;">
+                  <div class="img-cajon">
+                      <img src="../../../image/ProyectosWindowsApps.png" alt="Proyectos WindowsApps">
+                  </div>
+                  <h2>Proyectos WindowsApps</h2>
+                  <p>Aqui subire proyectos de aplicaciones Windows, para diferentes propósitos y necesidades, Aqui lamentablemente no podre ofrecer soporte directo, y compartir el codigo fuente por cuestiones de seguridad.</p>
+              </div>
+            </a>
+
+            <a class="card-link" href="projects-api.html" style="text-decoration:none;color:inherit;">
+              <div class="cajon-publicacion" style="cursor:default;">
+                  <div class="img-cajon">
+                      <img src="../../../image/ProyectosAPI.png" alt="Proyectos API">
+                  </div>
+                  <h2>Proyectos API</h2>
+                  <p>Aqui subire proyectos que hacen uso de APIs, con ejemplos de integración y uso. Ideal para aprender a trabajar con servicios externos.</p>
+              </div>
+            </a>
+        </div>
+        <style>
+            .card-link { display:block; text-decoration:none; color:inherit; }
+            .img-cajon {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 0.7rem;
+            }
+            .img-cajon img {
+                max-width: 120px;
+                max-height: 80px;
+                border-radius: 8px;
+                object-fit: cover;
+                box-shadow: 0 1px 6px rgba(0,0,0,0.10);
+            }
+            .publicaciones {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1.5rem;
+                justify-content: center;
+                margin-top: 2rem;
+                align-items: stretch; /* make children equal height within a row */
+            }
+            .cajon-publicacion {
+                background: var(--card-bg, #fff);
+                border-radius: 10px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                width: 320px;
+                max-width: 90vw;
+                min-height: 160px; /* increased to align visually */
+                padding: 1rem;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start; /* left align content for easier reading */
+                justify-content: space-between; /* space elements vertically so heights match */
+                text-align: left; /* left text inside card */
+                transition: box-shadow 0.2s, transform 0.2s;
+                margin-bottom: 1rem;
+            }
+            .cajon-publicacion h2 {
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
+                color: var(--text, #222);
+            }
+            .cajon-publicacion p {
+                font-size: 0.98rem;
+                color: #555;
+                margin: 0;
+                white-space: normal;
+                overflow-wrap: break-word;
+                max-width: 100%;
+            }
+            @media (max-width: 500px) {
+                .cajon-publicacion {
+                    width: 98vw;
+                    min-height: 100px;
+                }
+            }
+        </style>
+
+        <div style="display:flex;justify-content:center;margin-top:2.5rem;">
+            <a href="../index.html" style="background:#0078d7;color:#fff;padding:0.7rem 1.4rem;border-radius:8px;text-decoration:none;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.10);transition:background 0.2s;">⏪ Volver</a>
+        </div>
+    </main>
+    <script src="../../theme-toggle.js"></script>
+</body>
+</html>

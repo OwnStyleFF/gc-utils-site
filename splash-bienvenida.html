@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido de regreso</title>
+    <style>
+        html, body {
+            margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; background: #0a0a1a;
+        }
+        #splash-canvas {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;
+        }
+        .splash-text {
+            position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%);
+            color: #fff; font-size: 2rem; font-family: 'Segoe UI', Arial, sans-serif; text-align: center;
+            z-index: 2;
+            text-shadow: 0 2px 8px #000;
+            padding: 0 1rem;
+            width: 100vw;
+            box-sizing: border-box;
+        }
+        @media (max-width: 700px) {
+            .splash-text {
+                font-size: 1.2rem;
+                top: 55%;
+                padding: 0 0.5rem;
+            }
+        }
+        @media (max-width: 400px) {
+            .splash-text {
+                font-size: 1rem;
+                top: 52%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="splash-canvas"></canvas>
+    <div class="splash-text" id="splash-msg">¡Bienvenido de regreso a nuestro sistema solar!<br>Explora nuevas galaxias cuando quieras 🌌</div>
+    <script>
+        const canvas = document.getElementById('splash-canvas');
+        const ctx = canvas.getContext('2d');
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+        // Estrellas
+        const stars = Array.from({length: 120}, () => ({
+            x: Math.random(),
+            y: Math.random(),
+            r: Math.random() * 1.2 + 0.5
+        }));
+        // Nave (siempre entra desde la derecha)
+        let ship = { x: canvas.width + 120, y: canvas.height/2, vx: -8, angle: Math.PI };
+        // Meteoritos
+        const meteors = Array.from({length: 3}, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: Math.random() * 4 + 2,
+            vy: Math.random() * 2 - 1,
+            len: Math.random() * 60 + 40
+        }));
+        function drawSplash() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0a0a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.globalAlpha = 0.8;
+            stars.forEach(s => {
+                ctx.beginPath();
+                ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r, 0, Math.PI * 2);
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+            });
+            ctx.restore();
+            meteors.forEach(m => {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(m.x, m.y);
+                ctx.lineTo(m.x - m.len, m.y + m.len * 0.2);
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = '#fff';
+                ctx.shadowBlur = 8;
+                ctx.stroke();
+                ctx.restore();
+            });
+            ctx.save();
+            ctx.translate(ship.x, ship.y);
+            ctx.rotate(ship.angle);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(60, 18);
+            ctx.lineTo(40, 0);
+            ctx.lineTo(60, -18);
+            ctx.closePath();
+            ctx.fillStyle = '#b3e5fc';
+            ctx.shadowColor = '#fff';
+            ctx.shadowBlur = 10;
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-30, 8);
+            ctx.lineTo(-18, 0);
+            ctx.lineTo(-30, -8);
+            ctx.closePath();
+            ctx.fillStyle = '#ff9800';
+            ctx.shadowColor = '#ff9800';
+            ctx.shadowBlur = 20;
+            ctx.fill();
+            ctx.restore();
+        }
+        function animateSplash() {
+            ship.x += ship.vx;
+            ship.angle = Math.PI + Math.sin(ship.x/60) * 0.08;
+            meteors.forEach(m => {
+                m.x += m.vx;
+                m.y += m.vy;
+                if (m.x > canvas.width + 40 || m.y > canvas.height + 40 || m.y < -40) {
+                    m.x = -60;
+                    m.y = Math.random() * canvas.height * 0.8;
+                    m.vx = Math.random() * 4 + 2;
+                    m.vy = Math.random() * 2 - 1;
+                    m.len = Math.random() * 60 + 40;
+                }
+            });
+            drawSplash();
+            if (ship.x > -120) {
+                requestAnimationFrame(animateSplash);
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+        animateSplash();
+    </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juegos de PC - GC Utils</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header>
+        <h1>Juegos de PC</h1>
+    </header>
+    <main>
+        <div class="publicaciones">
+                <div class="cajon-publicacion" onclick="window.location.href='HydraLauncher/index.html'" style="cursor:pointer;">
+                    <div class="img-cajon">
+                        <img src="HydraLauncher.png" alt="Hydra Launcher">
+                    </div>
+                    <h2>Hydra Launcher</h2>
+                    <p>Sirve para descargar muchos juegos actuales, de forma rápida y sencilla.</p>
+                </div>
+                <div class="cajon-publicacion" onclick="window.location.href='GrupoDeTelegram/index.html'" style="cursor:pointer;">
+                    <div class="img-cajon">
+                        <img src="Telegram.png" alt="Grupo de telegram">
+                    </div>
+                    <h2>Grupo de telegram</h2>
+                    <p>Proximamente.</p>
+                </div>
+        </div>
+        <style>
+            .img-cajon {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 0.7rem;
+            }
+            .img-cajon img {
+                max-width: 120px;
+                max-height: 80px;
+                border-radius: 8px;
+                object-fit: cover;
+                box-shadow: 0 1px 6px rgba(0,0,0,0.10);
+            }
+            .publicaciones {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1.5rem;
+                justify-content: center;
+                margin-top: 2rem;
+            }
+            .cajon-publicacion {
+                background: var(--card-bg, #fff);
+                border-radius: 10px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                width: 320px;
+                max-width: 90vw;
+                min-height: 120px;
+                padding: 1rem;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                transition: box-shadow 0.2s, transform 0.2s;
+                margin-bottom: 1rem;
+            }
+            .cajon-publicacion h2 {
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
+                color: var(--text, #222);
+            }
+            .cajon-publicacion p {
+                font-size: 0.98rem;
+                color: #555;
+                margin: 0;
+                white-space: normal;
+                overflow-wrap: break-word;
+                max-width: 100%;
+            }
+            @media (max-width: 500px) {
+                .cajon-publicacion {
+                    width: 98vw;
+                    min-height: 100px;
+                }
+            }
+        </style>
+        <div style="display:flex;justify-content:center;margin-top:2.5rem;">
+            <a href="index.html" style="background:#0078d7;color:#fff;padding:0.7rem 1.4rem;border-radius:8px;text-decoration:none;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.10);transition:background 0.2s;">⏪ Volver a Juegos</a>
+        </div>
+    </main>
+</body>
+</html>
