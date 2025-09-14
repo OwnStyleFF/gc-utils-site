@@ -7,30 +7,50 @@
     <style>
         html, body {
             margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; background: #0a0a1a;
+            touch-action: none;
         }
         #splash-canvas {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;
+            max-width: 100vw; max-height: 100vh;
+            aspect-ratio: 1.8/1;
         }
         .splash-text {
-            position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%);
-            color: #fff; font-size: 2rem; font-family: 'Segoe UI', Arial, sans-serif; text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 2rem;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            text-align: center;
             z-index: 2;
             text-shadow: 0 2px 8px #000;
-            padding: 0 1rem;
-            width: 100vw;
+            padding: 0 1.2rem;
+            width: 92vw;
+            max-width: 500px;
             box-sizing: border-box;
+            line-height: 1.3;
+            pointer-events: none;
         }
         @media (max-width: 700px) {
             .splash-text {
-                font-size: 1.2rem;
-                top: 55%;
+                font-size: 1.1rem;
+                top: 50%;
                 padding: 0 0.5rem;
+                max-width: 98vw;
+            }
+            #splash-canvas {
+                aspect-ratio: 1/1.2;
             }
         }
         @media (max-width: 400px) {
             .splash-text {
-                font-size: 1rem;
-                top: 52%;
+                font-size: 0.92rem;
+                top: 50%;
+                padding: 0 0.1rem;
+            }
+            #splash-canvas {
+                aspect-ratio: 1/1.7;
             }
         }
     </style>
@@ -42,19 +62,34 @@
         const canvas = document.getElementById('splash-canvas');
         const ctx = canvas.getContext('2d');
         function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            // Para móviles, usar el menor valor entre ancho y alto para mantener proporción
+            let w = window.innerWidth;
+            let h = window.innerHeight;
+            // Si es móvil, hacer el canvas más cuadrado
+            if (w < 700) {
+                h = Math.max(h, w * 1.2);
+            }
+            canvas.width = w;
+            canvas.height = h;
         }
         window.addEventListener('resize', resize);
         resize();
         // Tierra
-        const earth = { x: 120, y: canvas.height/2, r: 48 };
-        // Sol
-        const sun = { x: canvas.width - 180, y: canvas.height/2, r: 70 };
+        // Ajustar posiciones y tamaños según tamaño de pantalla
+        function getEarth() {
+            const base = Math.min(canvas.width, canvas.height);
+            return { x: base * 0.13, y: canvas.height/2, r: base * 0.09 };
+        }
+        function getSun() {
+            const base = Math.min(canvas.width, canvas.height);
+            return { x: canvas.width - base * 0.19, y: canvas.height/2, r: base * 0.13 };
+        }
+        let earth = getEarth();
+        let sun = getSun();
         // Nave
-        let ship = { x: earth.x + earth.r + 20, y: earth.y, vx: 8, angle: 0 };
+    let ship = { x: earth.x + earth.r + 20, y: earth.y, vx: 8, angle: 0 };
         // Trayectoria curva
-        const curveY = (t) => earth.y + Math.sin(t * Math.PI) * 120;
+    const curveY = (t) => earth.y + Math.sin(t * Math.PI) * (Math.min(canvas.width, canvas.height) * 0.22);
         // Estrellas
         const stars = Array.from({length: 120}, () => ({
             x: Math.random(),
@@ -63,6 +98,9 @@
         }));
         let t = 0;
         function drawSplash() {
+            // Recalcular posiciones y tamaños en cada frame
+            earth = getEarth();
+            sun = getSun();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#0a0a1a';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -98,11 +136,13 @@
             ctx.save();
             ctx.translate(ship.x, ship.y);
             ctx.rotate(ship.angle);
+            let naveL = Math.min(canvas.width, canvas.height) * 0.13;
+            let naveH = naveL * 0.3;
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.lineTo(60, 18);
-            ctx.lineTo(40, 0);
-            ctx.lineTo(60, -18);
+            ctx.lineTo(naveL, naveH);
+            ctx.lineTo(naveL * 0.7, 0);
+            ctx.lineTo(naveL, -naveH);
             ctx.closePath();
             ctx.fillStyle = '#b3e5fc';
             ctx.shadowColor = '#fff';
@@ -111,15 +151,19 @@
             // Fuego
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.lineTo(-30, 8);
-            ctx.lineTo(-18, 0);
-            ctx.lineTo(-30, -8);
+            ctx.lineTo(-naveL * 0.5, naveH * 0.45);
+            ctx.lineTo(-naveL * 0.3, 0);
+            ctx.lineTo(-naveL * 0.5, -naveH * 0.45);
             ctx.closePath();
             ctx.fillStyle = '#ff9800';
             ctx.shadowColor = '#ff9800';
             ctx.shadowBlur = 20;
             ctx.fill();
             ctx.restore();
+        }
+        function finishSplash() {
+            try { sessionStorage.setItem('fromSplash', '1'); } catch(e){}
+            window.location.href = 'index.html';
         }
         function animateSplash() {
             t += 0.012;
@@ -131,7 +175,7 @@
             if (t < 1) {
                 requestAnimationFrame(animateSplash);
             } else {
-                window.location.href = 'index.html';
+                finishSplash();
             }
         }
         animateSplash();

@@ -1,0 +1,8 @@
+name = "ip-counter"
+main = "worker.js"
+compatibility_date = "2025-09-14"
+account_id = "8d5ec8d536dab66c3631d2aecc55ef3f"
+
+kv_namespaces = [
+  { binding = "VISITAS", id = "fecfc9d06ddc410c9ef0e85b1a0d4882" }
+]

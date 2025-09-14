@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GC Utils - Tecnología</title>
     <link rel="stylesheet" href="style.css">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://ip-counter.stilesrockchock.workers.dev; frame-ancestors 'none'; object-src 'none'; base-uri 'self'">
 </head>
 <body>
     <canvas id="bg-canvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-1;"></canvas>
@@ -23,19 +23,19 @@
     </header>
     <main>
         <div class="main-cards">
-                <a href="#" class="main-card" onclick="goToGalaxy('juegos/index.html')">
+            <a href="#" class="main-card" data-galaxy-target="juegos/index.html">
                 <img src="image/Juegos.png" alt="Juegos">
                 <div class="main-card-title">Juegos</div>
             </a>
-                <a href="#" class="main-card" onclick="goToGalaxy('proyectos/index.html')">
+            <a href="#" class="main-card" data-galaxy-target="proyectos/index.html">
                 <img src="image/Proyectos.png" alt="Proyectos">
                 <div class="main-card-title">Proyectos</div>
             </a>
-                <a href="#" class="main-card" onclick="goToGalaxy('comunicados/index.html')">
+            <a href="#" class="main-card" data-galaxy-target="comunicados/index.html">
                 <img src="image/Comunicados.png" alt="Comunicados">
                 <div class="main-card-title">Comunicados</div>
             </a>
-                <a href="#" class="main-card" onclick="goToGalaxy('servicios-remotos/index.html')">
+            <a href="#" class="main-card" data-galaxy-target="servicios-remotos/index.html">
                 <img src="image/Servicios-Remotos.png" alt="Servicios Remotos">
                 <div class="main-card-title">Servicios Remotos y más</div>
             </a>
@@ -184,168 +184,19 @@
             --card-text: #222;
         }
     </style>
-    <script>
-        // Splash de bienvenida solo al entrar directo (no por navegación interna)
-        if (!localStorage.getItem('splashInicioShown')) {
-            localStorage.setItem('splashInicioShown', '1');
-            window.location.replace('splash-inicio.html');
-        }
-        // Splash intergaláctico
-        function goToGalaxy(target) {
-            sessionStorage.setItem('galaxyTarget', target);
-            window.location.href = 'splash.html';
-        }
-        // Fondo animado: sistema solar, estrellas y meteoritos
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        // Estrellas
-        const stars = Array.from({length: 120}, () => ({
-            x: Math.random(),
-            y: Math.random(),
-            r: Math.random() * 1.2 + 0.5
-        }));
-
-        // Planetas (simplificado)
-        const planets = [
-            {r: 40, color: '#ffe066', orbit: 0.18, speed: 0.01}, // Sol
-            {r: 10, color: '#b0b0b0', orbit: 70, speed: 0.03},   // Mercurio
-            {r: 14, color: '#f7c59f', orbit: 110, speed: 0.022}, // Venus
-            {r: 16, color: '#6ec6ff', orbit: 150, speed: 0.018}, // Tierra
-            {r: 12, color: '#ff6f61', orbit: 190, speed: 0.015}, // Marte
-            {r: 28, color: '#ffe0b2', orbit: 240, speed: 0.012}, // Júpiter
-            {r: 24, color: '#bdbdbd', orbit: 290, speed: 0.009}, // Saturno
-            {r: 18, color: '#90caf9', orbit: 340, speed: 0.007}, // Urano
-            {r: 16, color: '#b39ddb', orbit: 380, speed: 0.005}  // Neptuno
-        ];
-        let planetAngles = planets.map(() => Math.random() * Math.PI * 2);
-
-        // Meteoritos
-        const meteors = Array.from({length: 4}, () => ({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            vx: Math.random() * 4 + 2,
-            vy: Math.random() * 2 - 1,
-            len: Math.random() * 60 + 40
-        }));
-
-        function drawSolarSystem() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // Fondo
-            ctx.fillStyle = '#181a2b';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            // Estrellas
-            ctx.save();
-            ctx.globalAlpha = 0.8;
-            stars.forEach(s => {
-                ctx.beginPath();
-                ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r, 0, Math.PI * 2);
-                ctx.fillStyle = '#fff';
-                ctx.fill();
-            });
-            ctx.restore();
-            // Sol y planetas
-            const cx = canvas.width / 2;
-            const cy = canvas.height / 2;
-            planets.forEach((p, i) => {
-                let angle = planetAngles[i];
-                let px = cx + Math.cos(angle) * (p.orbit || 0);
-                let py = cy + Math.sin(angle) * (p.orbit || 0);
-                ctx.beginPath();
-                ctx.arc(px, py, p.r, 0, Math.PI * 2);
-                ctx.fillStyle = p.color;
-                ctx.shadowColor = p.color;
-                ctx.shadowBlur = i === 0 ? 30 : 10;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-            });
-            // Órbitas
-            ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-            planets.forEach((p, i) => {
-                if (i > 0) {
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, p.orbit, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-            });
-            // Meteoritos
-            meteors.forEach(m => {
-                ctx.save();
-                ctx.beginPath();
-                ctx.moveTo(m.x, m.y);
-                ctx.lineTo(m.x - m.len, m.y + m.len * 0.2);
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 2.5;
-                ctx.shadowColor = '#fff';
-                ctx.shadowBlur = 8;
-                ctx.stroke();
-                ctx.restore();
-            });
-        }
-
-        function animateSolarSystem() {
-            planetAngles = planetAngles.map((a, i) => a + planets[i].speed);
-            meteors.forEach(m => {
-                m.x += m.vx;
-                m.y += m.vy;
-                if (m.x > canvas.width + 40 || m.y > canvas.height + 40 || m.y < -40) {
-                    m.x = -60;
-                    m.y = Math.random() * canvas.height * 0.8;
-                    m.vx = Math.random() * 4 + 2;
-                    m.vy = Math.random() * 2 - 1;
-                    m.len = Math.random() * 60 + 40;
-                }
-            });
-            drawSolarSystem();
-            requestAnimationFrame(animateSolarSystem);
-        }
-        animateSolarSystem();
-        // Theme logic moved to centralized script
-        
-    </script>
+    <!-- Scripts moved to inline-scripts.js -->
+    <!-- Visita alert modal -->
+    <div id="visita-overlay" class="aviso-overlay" aria-hidden="true">
+        <div class="aviso-box" role="dialog" aria-modal="true" aria-labelledby="visita-title">
+            <h2 id="visita-title">Felicidades</h2>
+            <p id="visita-text">Cargando visitas...</p>
+            <div style="display:flex;justify-content:center;margin-top:1rem;">
+                <button id="visita-cerrar" class="btn-aviso">Entendido</button>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts moved to inline-scripts.js -->
     <script src="theme-toggle.js"></script>
-    <script>
-        (function(){
-            // Poll for the shared script to finish initializing. If it doesn't after TIMEOUT, install fallback.
-            const CHECK_INTERVAL = 50;
-            const TIMEOUT = 500;
-            let waited = 0;
-            function installFallback(){
-                console.log('[fallback] installing local fallback (poll timeout)');
-                const toggle = document.getElementById('theme-toggle');
-                const icons = Array.from(document.querySelectorAll('.theme-icon'));
-                function apply(mode){
-                    document.body.classList.remove('light','dark');
-                    document.body.classList.add(mode);
-                    icons.forEach(ic => ic.textContent = mode === 'dark' ? '🌙' : '🌞');
-                    try { localStorage.setItem('theme', mode); } catch(e){}
-                }
-                let saved = null;
-                try { saved = localStorage.getItem('theme'); } catch(e){ saved = null; }
-                if (saved === 'dark' || saved === 'light') apply(saved); else {
-                    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    apply(prefersDark ? 'dark' : 'light');
-                }
-                if (toggle) {
-                    toggle.checked = document.body.classList.contains('dark');
-                    toggle.addEventListener('change', function(){ apply(toggle.checked ? 'dark' : 'light'); });
-                    icons.forEach(ic => ic.addEventListener('click', function(){ toggle.checked = !toggle.checked; apply(toggle.checked ? 'dark' : 'light'); }));
-                }
-            }
-            function check(){
-                if (window.__themeToggleInitialized) return; // shared script is ready
-                waited += CHECK_INTERVAL;
-                if (waited >= TIMEOUT){ installFallback(); return; }
-                setTimeout(check, CHECK_INTERVAL);
-            }
-            setTimeout(check, CHECK_INTERVAL);
-        })();
-    </script>
+    <script src="inline-scripts.js"></script>
 </body>
 </html>

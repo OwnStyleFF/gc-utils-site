@@ -11,113 +11,309 @@
         <h1>Juegos de consolas</h1>
     </header>
     <main>
-        <div style="display:flex;justify-content:center;margin-bottom:2rem;gap:1rem;flex-wrap:wrap;">
-            <button class="filtro-btn" data-plataforma="Todo" style="color:#222;">Todo</button>
-            <button class="filtro-btn" data-plataforma="Xbox 360" style="color:#222;">Xbox 360</button>
-            <button class="filtro-btn" data-plataforma="PS2" style="color:#222;">PS2</button>
-            <button class="filtro-btn" data-plataforma="PS3" style="color:#222;">PS3</button>
+        <div class="filtros-contenedor-abecedario">
+            <nav class="filtro-alfabeto-fixed" aria-label="Filtro alfabético">
+                <button class="filtro-letra" data-letra="ALL">Todos</button>
+                <button class="filtro-letra" data-letra="A">A</button>
+                <button class="filtro-letra" data-letra="B">B</button>
+                <button class="filtro-letra" data-letra="C">C</button>
+                <button class="filtro-letra" data-letra="D">D</button>
+                <button class="filtro-letra" data-letra="E">E</button>
+                <button class="filtro-letra" data-letra="F">F</button>
+                <button class="filtro-letra" data-letra="G">G</button>
+                <button class="filtro-letra" data-letra="H">H</button>
+                <button class="filtro-letra" data-letra="I">I</button>
+                <button class="filtro-letra" data-letra="J">J</button>
+                <button class="filtro-letra" data-letra="K">K</button>
+                <button class="filtro-letra" data-letra="L">L</button>
+                <button class="filtro-letra" data-letra="M">M</button>
+                <button class="filtro-letra" data-letra="N">N</button>
+                <button class="filtro-letra" data-letra="O">O</button>
+                <button class="filtro-letra" data-letra="P">P</button>
+                <button class="filtro-letra" data-letra="Q">Q</button>
+                <button class="filtro-letra" data-letra="R">R</button>
+                <button class="filtro-letra" data-letra="S">S</button>
+                <button class="filtro-letra" data-letra="T">T</button>
+                <button class="filtro-letra" data-letra="U">U</button>
+                <button class="filtro-letra" data-letra="V">V</button>
+                <button class="filtro-letra" data-letra="W">W</button>
+                <button class="filtro-letra" data-letra="X">X</button>
+                <button class="filtro-letra" data-letra="Y">Y</button>
+                <button class="filtro-letra" data-letra="Z">Z</button>
+            </nav>
+            <div class="filtros-publicaciones">
+                <div style="margin-bottom:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
+                    <button class="filtro-btn" data-plataforma="Todo">Todo</button>
+                    <button class="filtro-btn" data-plataforma="Xbox 360">Xbox 360</button>
+                    <button class="filtro-btn" data-plataforma="PS2">PS2</button>
+                    <button class="filtro-btn" data-plataforma="PS3">PS3</button>
+                </div>
+                <!-- Barra de búsqueda: permite buscar por título, descripción o plataforma -->
+                <div style="display:flex;justify-content:center;margin-bottom:1rem;">
+                    <label for="busqueda-juegos" style="position:absolute;left:-9999px;">Buscar juegos</label>
+                    <input id="busqueda-juegos" type="search" placeholder="Buscar juegos (título, plataforma, descripción)..." style="width:100%;max-width:680px;padding:0.5rem 0.8rem;border-radius:8px;border:1px solid #ccc;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+                </div>
+                <div id="juegos-lista" class="main-cards"></div>
+            </div>
         </div>
-        <div id="juegos-lista" class="main-cards" style="justify-content:center;flex-wrap:wrap;gap:2rem;"></div>
         <div style="display:flex;justify-content:center;margin-top:2.5rem;">
             <a href="../index.html" style="background:#0078d7;color:#fff;padding:0.7rem 1.4rem;border-radius:8px;text-decoration:none;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.10);transition:background 0.2s;">⏪ Volver a Juegos</a>
         </div>
     </main>
+
+    <!-- Aviso modal -->
+    <div id="aviso-overlay" class="aviso-overlay" aria-hidden="true">
+        <div class="aviso-box" role="dialog" aria-modal="true" aria-labelledby="aviso-title">
+            <h2 id="aviso-title">⚠ Aviso</h2>
+            <p>Estos archivos son recopilados de otros creadores. Al descargarlos, lo haces bajo tu propio riesgo. El propietario del sitio no se hace responsable de daños, fallos o problemas legales. La descarga se realiza con tu consentimiento.</p>
+            <div style="display:flex;justify-content:center;margin-top:1rem;">
+                <button id="aviso-entendido" class="btn-aviso">Entendido</button>
+            </div>
+        </div>
+    </div>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
+        // State
         let juegos = [];
-        let juegosLista = document.getElementById('juegos-lista');
+        const juegosLista = document.getElementById('juegos-lista');
         let filtroActual = 'Todo';
+        let filtroLetra = 'ALL';
+        let filtroBusqueda = '';
+
+        // Debounce helper
+        function debounce(fn, delay) {
+            let t;
+            return function (...args) {
+                clearTimeout(t);
+                t = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
+        // Load data
         fetch('juegos-consolas.json')
             .then(r => r.json())
             .then(data => {
-                juegos = data;
+                juegos = Array.isArray(data) ? data : [];
+                // Ensure alphabetical order baseline
+                juegos.sort((a, b) => a.titulo.localeCompare(b.titulo, 'es', { sensitivity: 'base' }));
                 renderJuegos();
+            })
+            .catch(err => {
+                console.error('Error cargando JSON de juegos:', err);
+                juegosLista.innerHTML = '<p>Error cargando los juegos.</p>';
             });
 
         function renderJuegos() {
             juegosLista.innerHTML = '';
-            let filtrados = filtroActual === 'Todo' ? juegos : juegos.filter(j => j.plataforma === filtroActual);
-            if (filtrados.length === 0) {
-                let p = document.createElement('p');
-                p.textContent = 'No hay juegos para esta plataforma.';
+
+            // Start from base list and apply platform filter
+            let base = filtroActual === 'Todo' ? juegos.slice() : juegos.filter(j => j.plataforma === filtroActual);
+
+            // Apply search filter
+            const search = (filtroBusqueda || '').trim().toLowerCase();
+            if (search.length > 0) {
+                base = base.filter(j => {
+                    const inTitulo = j.titulo && j.titulo.toLowerCase().includes(search);
+                    const inDesc = j.descripcion && j.descripcion.toLowerCase().includes(search);
+                    const inPlat = j.plataforma && j.plataforma.toLowerCase().includes(search);
+                    return inTitulo || inDesc || inPlat;
+                });
+            }
+
+            // Apply letter filter
+            if (filtroLetra !== 'ALL' && filtroLetra !== null) {
+                base = base.filter(j => j.titulo && j.titulo.toUpperCase().startsWith(filtroLetra));
+            }
+
+            // Update available letters (reflecting current platform + search)
+            const letrasDisponibles = new Set(( (filtroActual === 'Todo' ? juegos : juegos.filter(j => j.plataforma === filtroActual))
+                .filter(j => {
+                    if (!search) return true;
+                    const s = search;
+                    return (j.titulo && j.titulo.toLowerCase().includes(s)) || (j.descripcion && j.descripcion.toLowerCase().includes(s)) || (j.plataforma && j.plataforma.toLowerCase().includes(s));
+                })
+                .map(j => j.titulo ? j.titulo[0].toUpperCase() : '') ) );
+
+            document.querySelectorAll('.filtro-letra').forEach(btn => {
+                const letra = btn.getAttribute('data-letra');
+                if (letra === 'ALL') {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                } else if (letrasDisponibles.has(letra)) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                } else {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.35';
+                }
+            });
+
+            if (base.length === 0) {
+                const p = document.createElement('p');
+                p.textContent = 'No hay juegos para este filtro.';
                 juegosLista.appendChild(p);
                 return;
             }
-            filtrados.forEach(juego => {
-                let card = document.createElement('div');
+
+            base.forEach(juego => {
+                const card = document.createElement('div');
                 card.className = 'main-card';
-                card.style.width = '260px';
-                card.style.display = 'flex';
-                card.style.flexDirection = 'column';
-                card.style.alignItems = 'center';
-                card.style.background = 'var(--card-bg, #fff)';
-                card.style.borderRadius = '10px';
-                card.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-                card.style.overflow = 'hidden';
-                card.style.marginBottom = '1rem';
+                card.setAttribute('data-titulo', juego.titulo || '');
+                card.setAttribute('data-letra', juego.titulo ? juego.titulo[0].toUpperCase() : '');
 
-                let img = document.createElement('img');
-                img.src = juego.imagen;
-                img.alt = juego.titulo;
-                img.style.width = '100%';
-                img.style.height = '160px';
-                img.style.objectFit = 'cover';
-                card.appendChild(img);
-
-                let title = document.createElement('div');
-                title.className = 'main-card-title';
-                title.textContent = (juego.peso ? juego.peso + ' ' : '') + juego.titulo;
-                title.style.fontWeight = 'bold';
-                title.style.margin = '1rem 0 0.5rem 0';
-                card.appendChild(title);
-
-                let desc = document.createElement('div');
-                desc.textContent = juego.descripcion;
-                desc.style.fontSize = '0.95rem';
-                desc.style.marginBottom = '0.5rem';
-                card.appendChild(desc);
-
-                let plat = document.createElement('div');
-                plat.textContent = 'Plataforma: ' + juego.plataforma;
-                plat.style.fontSize = '0.9rem';
-                plat.style.color = '#666';
-                plat.style.marginBottom = '0.7rem';
-                card.appendChild(plat);
-
-                let link = document.createElement('a');
-                link.href = juego.enlace;
-                link.textContent = 'Descargar';
-                link.style.background = '#0078d7';
-                link.style.color = '#fff';
-                link.style.padding = '0.5rem 1.2rem';
-                link.style.borderRadius = '6px';
-                link.style.textDecoration = 'none';
-                link.style.fontWeight = 'bold';
-                link.style.marginBottom = '1rem';
-                link.setAttribute('download', '');
-                link.target = '_blank';
-                card.appendChild(link);
+                card.innerHTML = `
+                    <img src="${juego.imagen || ''}" alt="${(juego.titulo||'').replace(/"/g, '&quot;')}" />
+                    <h3>${juego.titulo || ''}</h3>
+                    <p>${juego.descripcion || ''}</p>
+                    <p><strong>Peso:</strong> ${juego.peso || 'N/A'}</p>
+                    <a href="${juego.enlace || '#'}" target="_blank">Descargar / Más info</a>
+                `;
 
                 juegosLista.appendChild(card);
             });
+
+            // Scrollspy: attach only when showing ALL letters
+            if (filtroLetra === 'ALL') {
+                if (!window._abecedarioSpyAttached) {
+                    window.addEventListener('scroll', scrollSpyAbecedario, { passive: true });
+                    window._abecedarioSpyAttached = true;
+                }
+                scrollSpyAbecedario();
+            } else if (window._abecedarioSpyAttached) {
+                window.removeEventListener('scroll', scrollSpyAbecedario);
+                window._abecedarioSpyAttached = false;
+            }
         }
 
+        function scrollSpyAbecedario() {
+            const cards = Array.from(document.querySelectorAll('.main-card[data-letra]'));
+            const letrasBtns = Array.from(document.querySelectorAll('.filtro-letra'));
+            let found = null;
+            for (const card of cards) {
+                const rect = card.getBoundingClientRect();
+                if (rect.top >= 100) { found = card.getAttribute('data-letra'); break; }
+            }
+            letrasBtns.forEach(btn => {
+                const isActive = btn.getAttribute('data-letra') === found;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+        }
+
+        // Buttons: plataforma
         document.querySelectorAll('.filtro-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 filtroActual = this.getAttribute('data-plataforma');
-                document.querySelectorAll('.filtro-btn').forEach(b => {
-                    b.style.background = '';
-                    b.style.color = '#222';
-                });
-                this.style.background = '#0078d7';
-                this.style.color = '#fff';
+                document.querySelectorAll('.filtro-btn').forEach(b => { b.classList.remove('active'); b.style.background = ''; b.style.color = ''; });
+                this.classList.add('active');
+                this.style.background = '#0078d7'; this.style.color = '#fff';
+                filtroLetra = 'ALL';
+                const btnLetraAll = document.querySelector('.filtro-letra[data-letra="ALL"]');
+                if (btnLetraAll) { btnLetraAll.classList.add('active'); btnLetraAll.style.background = '#0078d7'; btnLetraAll.style.color = '#fff'; }
                 renderJuegos();
             });
         });
+
         // Marcar "Todo" como activo por defecto
-        let btnTodo = document.querySelector('.filtro-btn[data-plataforma="Todo"]');
-        btnTodo.style.background = '#0078d7';
-        btnTodo.style.color = '#fff';
+        const btnTodo = document.querySelector('.filtro-btn[data-plataforma="Todo"]');
+        if (btnTodo) { btnTodo.classList.add('active'); btnTodo.style.background = '#0078d7'; btnTodo.style.color = '#fff'; }
+
+        // Letras
+        document.querySelectorAll('.filtro-letra').forEach(btn => {
+            btn.addEventListener('click', function () {
+                if (this.disabled) return;
+                document.querySelectorAll('.filtro-letra').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                this.style.background = '#0078d7'; this.style.color = '#fff';
+                const letra = this.getAttribute('data-letra');
+                filtroLetra = letra === 'ALL' ? 'ALL' : letra;
+                renderJuegos();
+            });
+        });
+        const btnLetraAll = document.querySelector('.filtro-letra[data-letra="ALL"]');
+        if (btnLetraAll) { btnLetraAll.classList.add('active'); btnLetraAll.setAttribute('aria-pressed', 'true'); }
+
+        // Search input
+        const inputBusqueda = document.getElementById('busqueda-juegos');
+        if (inputBusqueda) {
+            inputBusqueda.addEventListener('input', debounce(function (e) {
+                filtroBusqueda = e.target.value || '';
+                renderJuegos();
+            }, 200));
+        }
+
+        // Aviso modal behavior
+        const avisoOverlay = document.getElementById('aviso-overlay');
+        const avisoBtn = document.getElementById('aviso-entendido');
+        function openAviso() {
+            if (!avisoOverlay) return;
+            avisoOverlay.style.display = 'flex';
+            avisoOverlay.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('aviso-locked');
+            // trap focus on button
+            avisoBtn && avisoBtn.focus();
+        }
+        function closeAviso() {
+            if (!avisoOverlay) return;
+            avisoOverlay.style.display = 'none';
+            avisoOverlay.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('aviso-locked');
+        }
+        // Show on first load only if user hasn't accepted before
+        const avisoKey = 'gc_aviso_aceptado';
+        if (!localStorage.getItem(avisoKey)) {
+            openAviso();
+        }
+        avisoBtn && avisoBtn.addEventListener('click', () => {
+            try { localStorage.setItem(avisoKey, '1'); } catch (e) { /* ignore */ }
+            closeAviso();
+        });
+
+        // Prevent bypass: observe overlay node and reload if it's removed without acceptance
+        if (avisoOverlay) {
+            const observer = new MutationObserver((mutations) => {
+                for (const m of mutations) {
+                    for (const node of m.removedNodes) {
+                        if (node === avisoOverlay && !localStorage.getItem(avisoKey)) {
+                            // someone removed the overlay element — reload to re-enforce
+                            location.reload();
+                        }
+                    }
+                }
+            });
+            observer.observe(document.body, { childList: true, subtree: false });
+        }
+
+        // Prevent pointer/keyboard interaction when modal open by blocking pointer-events via CSS class
+
+        // Extra enforcement: periodic check (in case someone attempts to hide/remove the overlay)
+        const periodicInterval = setInterval(() => {
+            try {
+                const accepted = !!localStorage.getItem(avisoKey);
+                const overlayElem = document.getElementById('aviso-overlay');
+                // If accepted, stop checking and ensure overlay is removed
+                if (accepted) {
+                    if (overlayElem) { overlayElem.style.display = 'none'; overlayElem.setAttribute('aria-hidden', 'true'); }
+                    document.body.classList.remove('aviso-locked');
+                    clearInterval(periodicInterval);
+                    return;
+                }
+                // Not accepted: overlay should exist and be visible
+                if (!overlayElem) {
+                    // overlay removed -> reload to re-enforce
+                    location.reload();
+                    return;
+                }
+                // If overlay exists but hidden, try to re-open it
+                const isHidden = overlayElem.style.display === 'none' || overlayElem.getAttribute('aria-hidden') === 'true';
+                if (isHidden) {
+                    openAviso();
+                }
+            } catch (e) {
+                // on error, reload as a defensive action
+                location.reload();
+            }
+        }, 1000);
     });
     </script>
 </body>
