@@ -119,36 +119,48 @@
 })();
 
 // --- Visita alert modal ---
+
+
 (function(){
     const overlay = document.getElementById('visita-overlay');
     const texto = document.getElementById('visita-text');
     const btn = document.getElementById('visita-cerrar');
+
     async function actualizarContador() {
         try {
-            const res = await fetch('https://ip-counter.stilesrockchock.workers.dev/', { credentials: 'include' });
+            // URL de tu Worker
+            const res = await fetch('https://ip-counter.stilesrockchock.workers.dev/', {
+                method: 'GET',
+                mode: 'cors',
+                credentials: 'omit'
+            });
+            if (!res.ok) throw new Error('Respuesta no OK');
+
             const data = await res.json();
             const visitas = data && data.visitas ? data.visitas : '?';
             texto.textContent = `Felicidades — eres el visitante número ${visitas} en entrar a esta página.`;
         } catch (e) {
-            console.error('Error al obtener el contador', e);
-            try {
-                const key = 'gc_local_visitas';
-                let n = 0;
-                try { n = parseInt(localStorage.getItem(key) || '0', 10); } catch(x){ n = 0; }
-                n = isNaN(n) ? 1 : n + 1;
-                try { localStorage.setItem(key, String(n)); } catch(x){}
-                texto.textContent = `Felicidades — eres el visitante local número ${n} (contador global no disponible)`;
-            } catch (xx) {
-                texto.textContent = `Felicidades — bienvenido. (No se pudo obtener el contador)`;
-            }
+            console.error('Error al obtener el contador global:', e);
+            texto.textContent = `Felicidades — contador global no disponible`;
         }
     }
-    function openVisita(){ overlay.style.display = 'flex'; overlay.setAttribute('aria-hidden','false'); btn && btn.focus(); }
-    function closeVisita(){ overlay.style.display = 'none'; overlay.setAttribute('aria-hidden','true'); }
+
+    function openVisita(){
+        overlay.style.display = 'flex';
+        overlay.setAttribute('aria-hidden','false');
+        btn && btn.focus();
+    }
+
+    function closeVisita(){
+        overlay.style.display = 'none';
+        overlay.setAttribute('aria-hidden','true');
+    }
+
     window.addEventListener('load', function(){
         actualizarContador();
         openVisita();
     });
+
     btn && btn.addEventListener('click', closeVisita);
 })();
 
