@@ -137,8 +137,8 @@
             if (!res.ok) throw new Error('Respuesta no OK');
 
             const data = await res.json();
-            const visitas = data && data.visitas ? data.visitas : '?';
-            texto.textContent = `Felicidades — eres el visitante número ${visitas} en entrar a esta página.`;
+            const numero = data && data.numero ? data.numero : '?';
+            texto.textContent = `Felicidades — eres el visitante número ${numero} en entrar a esta página.`;
         } catch (e) {
             console.error('Error al obtener el contador global:', e);
             texto.textContent = `Felicidades — contador global no disponible`;
