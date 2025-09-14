@@ -17,7 +17,11 @@ export default {
     const contador = visitas.length;
 
     return new Response(JSON.stringify({ visitas: contador }), {
-      headers: { "Content-Type": "application/json" }
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET"
+      }
     });
   }
 };
