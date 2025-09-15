@@ -22,6 +22,41 @@
 
 // --- Fondo animado: sistema solar, estrellas y meteoritos ---
 (function(){
+            // --- Identificación avanzada de dispositivo y registro de visita ---
+            function getDeviceId() {
+                let id = localStorage.getItem('gc_device_id');
+                if (!id) {
+                    id = 'gc-' + Math.random().toString(36).substr(2, 16) + '-' + Date.now();
+                    localStorage.setItem('gc_device_id', id);
+                }
+                return id;
+            }
+
+            function getDeviceInfo() {
+                return {
+                    id: getDeviceId(),
+                    userAgent: navigator.userAgent,
+                    language: navigator.language,
+                    screen: window.screen.width + 'x' + window.screen.height,
+                    platform: navigator.platform
+                };
+            }
+
+            async function registrarVisitaAvanzada() {
+                const info = getDeviceInfo();
+                try {
+                    await fetch('https://gc-utils-worker.yourdomain.workers.dev/visita', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(info)
+                    });
+                } catch (e) {
+                    // Opcional: mostrar error en consola
+                    console.warn('No se pudo registrar la visita avanzada:', e);
+                }
+            }
+
+            window.addEventListener('DOMContentLoaded', registrarVisitaAvanzada);
     const canvas = document.getElementById('bg-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');

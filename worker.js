@@ -59,28 +59,77 @@ export default {
       } catch(e) {}
     }
 
-    let index = visitas.findIndex(v => v.ip === ip);
-    if (index === -1) {
-      visitas.push({ ip, ua: userAgent });
-      await env.VISITAS.put(visitasKey, JSON.stringify(visitas));
-      index = visitas.length - 1;
+    // Si es POST y contiene datos de dispositivo, procesar como visita avanzada
+    if (request.method === "POST") {
+      try {
+        const data = await request.json();
+        // data: { id, userAgent, language, screen, platform }
+        let index = visitas.findIndex(v => v.id === data.id);
+        if (index === -1) {
+          visitas.push({
+            id: data.id,
+            ip,
+            ua: data.userAgent,
+            language: data.language,
+            screen: data.screen,
+            platform: data.platform,
+            lastVisit: Date.now()
+          });
+          await env.VISITAS.put(visitasKey, JSON.stringify(visitas));
+          index = visitas.length - 1;
+        } else {
+          // Actualiza datos si cambiaron
+          let updated = false;
+          ["ip", "ua", "language", "screen", "platform"].forEach(key => {
+            if (visitas[index][key] !== data[key]) {
+              visitas[index][key] = data[key];
+              updated = true;
+            }
+          });
+          visitas[index].lastVisit = Date.now();
+          if (updated) await env.VISITAS.put(visitasKey, JSON.stringify(visitas));
+        }
+        const contador = visitas.length;
+        const numeroVisitante = index + 1;
+        return new Response(JSON.stringify({ visitas: contador, numero: numeroVisitante }), {
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST,GET"
+          }
+        });
+      } catch(e) {
+        return new Response(JSON.stringify({ error: "Datos inválidos" }), {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*"
+          }
+        });
+      }
     } else {
-      // Actualiza el UA si cambió
-      if (visitas[index].ua !== userAgent) {
-        visitas[index].ua = userAgent;
+      // GET clásico por IP
+      let index = visitas.findIndex(v => v.ip === ip);
+      if (index === -1) {
+        visitas.push({ ip, ua: userAgent });
         await env.VISITAS.put(visitasKey, JSON.stringify(visitas));
+        index = visitas.length - 1;
+      } else {
+        // Actualiza el UA si cambió
+        if (visitas[index].ua !== userAgent) {
+          visitas[index].ua = userAgent;
+          await env.VISITAS.put(visitasKey, JSON.stringify(visitas));
+        }
       }
+      const contador = visitas.length;
+      const numeroVisitante = index + 1; // 1-based
+      return new Response(JSON.stringify({ visitas: contador, numero: numeroVisitante }), {
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET"
+        }
+      });
     }
-
-    const contador = visitas.length;
-    const numeroVisitante = index + 1; // 1-based
-
-    return new Response(JSON.stringify({ visitas: contador, numero: numeroVisitante }), {
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET"
-      }
-    });
   }
 };
