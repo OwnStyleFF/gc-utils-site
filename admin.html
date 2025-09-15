@@ -26,13 +26,37 @@
         <div class="admin-auth">
             <label for="admin-totp">Código TOTP (Google Authenticator):</label>
             <input type="text" id="admin-totp" placeholder="123456" maxlength="6" pattern="[0-9]{6}">
+            <button id="admin-paste" type="button">Pegar</button>
             <button id="admin-login">Entrar</button>
         </div>
         <div id="admin-content" style="display:none;">
             <h2>IPs y Números de Visitante</h2>
+            <div style="margin-bottom:1rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+                <button id="admin-refresh">Actualizar</button>
+                <label for="admin-interval">Intervalo de actualización:</label>
+                <select id="admin-interval">
+                    <option value="0">No actualizar automáticamente</option>
+                    <option value="1000">1 segundo</option>
+                    <option value="15000">15 segundos</option>
+                    <option value="30000">30 segundos</option>
+                    <option value="60000">1 minuto</option>
+                    <option value="300000">5 minutos</option>
+                    <option value="900000">15 minutos</option>
+                    <option value="1800000">30 minutos</option>
+                    <option value="3600000">1 hora</option>
+                </select>
+                <button id="admin-export" style="background:#ffe066;color:#222;">Exportar CSV</button>
+                <button id="admin-logout" style="margin-left:auto;background:#ff6f61;color:#fff;">Cerrar sesión</button>
+            </div>
+            <div style="margin-bottom:1rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+                <label for="filter-ip">Filtrar IP:</label>
+                <input type="text" id="filter-ip" placeholder="Buscar IP..." style="min-width:120px;">
+                <label for="filter-ua">Filtrar dispositivo/navegador:</label>
+                <input type="text" id="filter-ua" placeholder="Buscar dispositivo..." style="min-width:180px;">
+            </div>
             <table id="visitas-table">
                 <thead>
-                    <tr><th>#</th><th>IP</th></tr>
+                    <tr><th>#</th><th>IP</th><th>Dispositivo / Navegador</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -41,12 +65,29 @@
     </div>
     <script>
     const API_URL = 'https://ip-counter.stilesrockchock.workers.dev/?totp=';
-    document.getElementById('admin-login').onclick = async function() {
-        const totp = document.getElementById('admin-totp').value.trim();
+    const SESSION_KEY = 'admin_totp_session';
+    const SESSION_EXPIRY = 12 * 60 * 60 * 1000; // 12 horas en ms
+
+    let autoRefreshTimer = null;
+
+    let visitasCache = [];
+    function renderVisitasTable() {
+        const tbody = document.querySelector('#visitas-table tbody');
+        const ipFilter = document.getElementById('filter-ip').value.trim().toLowerCase();
+        const uaFilter = document.getElementById('filter-ua').value.trim().toLowerCase();
+        tbody.innerHTML = '';
+        visitasCache
+            .filter(v => v.ip.toLowerCase().includes(ipFilter) && (v.ua || '').toLowerCase().includes(uaFilter))
+            .forEach((v, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${idx+1}</td><td>${v.ip}</td><td>${v.ua || ''}</td>`;
+                tbody.appendChild(tr);
+            });
+    }
+
+    async function cargarVisitas(totp) {
         const error = document.getElementById('admin-error');
         error.textContent = '';
-        if (!totp || totp.length !== 6) { error.textContent = 'Ingresa el código TOTP de 6 dígitos.'; return; }
-        this.disabled = true;
         try {
             const res = await fetch(API_URL + encodeURIComponent(totp), { method: 'GET', mode: 'cors', credentials: 'omit' });
             if (!res.ok) throw new Error('Código incorrecto o error de red');
@@ -54,18 +95,105 @@
             if (!Array.isArray(data.visitas)) throw new Error('Respuesta inesperada');
             document.querySelector('.admin-auth').style.display = 'none';
             document.getElementById('admin-content').style.display = '';
-            const tbody = document.querySelector('#visitas-table tbody');
-            tbody.innerHTML = '';
-            data.visitas.forEach((ip, idx) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${idx+1}</td><td>${ip}</td>`;
-                tbody.appendChild(tr);
-            });
+            visitasCache = data.visitas;
+            renderVisitasTable();
         } catch(e) {
             error.textContent = e.message;
         }
+    }
+    document.getElementById('filter-ip').oninput = renderVisitasTable;
+    document.getElementById('filter-ua').oninput = renderVisitasTable;
+
+    document.getElementById('admin-export').onclick = function() {
+        let csv = 'N°,IP,Dispositivo/Navegador\n';
+        visitasCache.forEach((v, idx) => {
+            csv += `${idx+1},${v.ip.replace(/,/g,'')},${(v.ua||'').replace(/,/g,'')}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'visitas.csv';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+    };
+    document.getElementById('admin-paste').onclick = async function() {
+        try {
+            const text = await navigator.clipboard.readText();
+            document.getElementById('admin-totp').value = text.trim();
+            document.getElementById('admin-totp').dispatchEvent(new Event('input'));
+        } catch(e) {}
+    };
+
+    document.getElementById('admin-totp').oninput = function() {
+        const val = this.value.trim();
+        if (val.length > 6) {
+            this.style.borderColor = '#ff6f61';
+            document.getElementById('admin-error').textContent = 'El código debe ser de 6 dígitos.';
+        } else {
+            this.style.borderColor = '';
+            document.getElementById('admin-error').textContent = '';
+        }
+    };
+
+    function guardarSesion(totp) {
+        try {
+            localStorage.setItem(SESSION_KEY, JSON.stringify({ totp, t: Date.now() }));
+        } catch(e) {}
+    }
+    function obtenerSesion() {
+        try {
+            const s = JSON.parse(localStorage.getItem(SESSION_KEY));
+            if (s && s.t && s.t + SESSION_EXPIRY > Date.now() && s.totp) return s.totp;
+        } catch(e) {}
+        return null;
+    }
+
+    document.getElementById('admin-login').onclick = async function() {
+        const totp = document.getElementById('admin-totp').value.trim();
+        const error = document.getElementById('admin-error');
+        error.textContent = '';
+        if (!totp || totp.length !== 6) { error.textContent = 'Ingresa el código TOTP de 6 dígitos.'; return; }
+        this.disabled = true;
+        await cargarVisitas(totp);
+        guardarSesion(totp);
         this.disabled = false;
     };
+
+
+    document.getElementById('admin-refresh').onclick = function() {
+        const totp = obtenerSesion();
+        if (totp) cargarVisitas(totp);
+    };
+
+    function setAutoRefresh(intervalMs) {
+        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+        if (intervalMs > 0) {
+            autoRefreshTimer = setInterval(function() {
+                const totp = obtenerSesion();
+                if (totp) cargarVisitas(totp);
+            }, intervalMs);
+        }
+    }
+
+    document.getElementById('admin-interval').onchange = function() {
+        setAutoRefresh(parseInt(this.value, 10));
+    };
+
+    // Inicializa con 30s por defecto
+    setAutoRefresh(30000);
+
+    document.getElementById('admin-logout').onclick = function() {
+        try { localStorage.removeItem(SESSION_KEY); } catch(e) {}
+        location.reload();
+    };
+
+    // Al cargar la página, intenta sesión
+    window.addEventListener('DOMContentLoaded', function() {
+        const totp = obtenerSesion();
+        if (totp) cargarVisitas(totp);
+    });
     </script>
 </body>
 </html>
