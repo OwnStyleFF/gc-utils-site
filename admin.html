@@ -90,9 +90,9 @@
             });
     }
 
-    async function cargarVisitas(totp) {
+    async function cargarVisitas(totp, isAuto = false) {
         const error = document.getElementById('admin-error');
-        error.textContent = '';
+        if (!isAuto) error.textContent = '';
         try {
             const res = await fetch(API_URL + encodeURIComponent(totp), { method: 'GET', mode: 'cors', credentials: 'omit' });
             if (!res.ok) throw new Error('Código incorrecto o error de red');
@@ -103,7 +103,8 @@
             visitasCache = data.visitas;
             renderVisitasTable();
         } catch(e) {
-            error.textContent = e.message;
+            if (!isAuto) error.textContent = e.message;
+            // Si es autoupdate y el error es por TOTP, no cerrar sesión, solo mostrar el error en la tabla
         }
     }
     document.getElementById('filter-ip').oninput = renderVisitasTable;
@@ -178,7 +179,7 @@
             autoRefreshTimer = setInterval(function() {
                 if (isSesionActiva()) {
                     const totp = obtenerSesion();
-                    cargarVisitas(totp);
+                    cargarVisitas(totp, true);
                 } else {
                     clearInterval(autoRefreshTimer);
                     autoRefreshTimer = null;
