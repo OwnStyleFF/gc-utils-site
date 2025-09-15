@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrador - Visitas</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background: #181a1b; color: #eee; }
+        .admin-container { max-width: 700px; margin: 2rem auto; background: #23272b; border-radius: 10px; box-shadow: 0 2px 8px #0004; padding: 2rem; }
+        h1 { text-align: center; margin-bottom: 2rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 0.5rem 1rem; border-bottom: 1px solid #444; }
+        th { background: #222; }
+        tr:last-child td { border-bottom: none; }
+        .error { color: #ff6f61; margin-top: 1rem; text-align: center; }
+        .admin-auth { text-align: center; margin-bottom: 2rem; }
+        input[type=password] { padding: 0.5rem; border-radius: 5px; border: 1px solid #444; background: #222; color: #eee; }
+        button { padding: 0.5rem 1.5rem; border-radius: 5px; border: none; background: #ffe066; color: #222; font-weight: bold; cursor: pointer; }
+        button:disabled { background: #888; color: #ccc; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>Panel de Visitas (Admin)</h1>
+        <div class="admin-auth">
+            <label for="admin-totp">Código TOTP (Google Authenticator):</label>
+            <input type="text" id="admin-totp" placeholder="123456" maxlength="6" pattern="[0-9]{6}">
+            <button id="admin-login">Entrar</button>
+        </div>
+        <div id="admin-content" style="display:none;">
+            <h2>IPs y Números de Visitante</h2>
+            <table id="visitas-table">
+                <thead>
+                    <tr><th>#</th><th>IP</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="error" id="admin-error"></div>
+    </div>
+    <script>
+    const API_URL = 'https://ip-counter.stilesrockchock.workers.dev/?totp=';
+    document.getElementById('admin-login').onclick = async function() {
+        const totp = document.getElementById('admin-totp').value.trim();
+        const error = document.getElementById('admin-error');
+        error.textContent = '';
+        if (!totp || totp.length !== 6) { error.textContent = 'Ingresa el código TOTP de 6 dígitos.'; return; }
+        this.disabled = true;
+        try {
+            const res = await fetch(API_URL + encodeURIComponent(totp), { method: 'GET', mode: 'cors', credentials: 'omit' });
+            if (!res.ok) throw new Error('Código incorrecto o error de red');
+            const data = await res.json();
+            if (!Array.isArray(data.visitas)) throw new Error('Respuesta inesperada');
+            document.querySelector('.admin-auth').style.display = 'none';
+            document.getElementById('admin-content').style.display = '';
+            const tbody = document.querySelector('#visitas-table tbody');
+            tbody.innerHTML = '';
+            data.visitas.forEach((ip, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${idx+1}</td><td>${ip}</td>`;
+                tbody.appendChild(tr);
+            });
+        } catch(e) {
+            error.textContent = e.message;
+        }
+        this.disabled = false;
+    };
+    </script>
+</body>
+</html>
