@@ -69,6 +69,10 @@
     const SESSION_EXPIRY = 12 * 60 * 60 * 1000; // 12 horas en ms
 
     let autoRefreshTimer = null;
+    function isSesionActiva() {
+        const totp = obtenerSesion();
+        return !!totp;
+    }
 
     let visitasCache = [];
     function renderVisitasTable() {
@@ -172,8 +176,15 @@
         if (autoRefreshTimer) clearInterval(autoRefreshTimer);
         if (intervalMs > 0) {
             autoRefreshTimer = setInterval(function() {
-                const totp = obtenerSesion();
-                if (totp) cargarVisitas(totp);
+                if (isSesionActiva()) {
+                    const totp = obtenerSesion();
+                    cargarVisitas(totp);
+                } else {
+                    clearInterval(autoRefreshTimer);
+                    autoRefreshTimer = null;
+                    document.querySelector('.admin-auth').style.display = '';
+                    document.getElementById('admin-content').style.display = 'none';
+                }
             }, intervalMs);
         }
     }
